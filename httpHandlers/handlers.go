@@ -1,24 +1,30 @@
 package httpHandlers
 
-import "net/http"
-import "log"
-import "github.com/deflexor/gonewsticker/httpHandlers/httpUtils"
+import (
+	"net/http"
+	"log"
+	"github.com/deflexor/gonewsticker/httpHandlers/httpUtils"
+)
 
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	log.Println("Incoming Request:", r.Method)
 	log.Println("Incoming URI:", r.RequestURI)
-	switch r.Method {
-	case http.MethodGet:
+	switch r.RequestURI {
+	case "/":
+		Index(w, r)
+		break
+	case "/comment":
+		if r.Method == http.MethodPost {
+			AddComment(w, r)
+		} else {
+			httpUtils.HandleError(&w, 405, "Method not allowed", "Method not allowed", nil)
+		}
+		break
+	case "/news":
 		List(w, r)
 		break
-	case http.MethodPost:
-		Add(w, r)
-		break
-	case http.MethodDelete:
-		Remove(w, r)
-		break
 	default:
-		httpUtils.HandleError(&w, 405, "Method not allowed", "Method not allowed", nil)
+		httpUtils.HandleError(&w, 400, "Bad request", "Bad request", nil)
 		break
 	}
 }

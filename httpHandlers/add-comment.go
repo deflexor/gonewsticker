@@ -11,7 +11,7 @@ import (
 	"github.com/deflexor/gonewsticker/structs"
 )
 
-func Add(w http.ResponseWriter, r *http.Request) {
+func AddComment(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	byteData, err := ioutil.ReadAll(r.Body)
 
@@ -20,16 +20,16 @@ func Add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var message structs.NewsMessage
+	var c structs.Comment
 
-	err = json.Unmarshal(byteData, &message)
+	err = json.Unmarshal(byteData, &c)
 
 	if err != nil {
 		httpUtils.HandleError(&w, 500, "Internal Server Error", "Error unmarhsalling JSON", err)
 		return
 	}
 
-	if message.Text == "" || message.Sender == "" {
+	if c.Text == "" || c.Author == "" {
 		httpUtils.HandleError(&w, 400, "Bad Request", "Unmarshalled JSON didn't have required fields", nil)
 		return
 	}
@@ -37,7 +37,7 @@ func Add(w http.ResponseWriter, r *http.Request) {
 	// id := storage.Add(message)
 	id := 1
 
-	log.Println("Added message:", message)
+	log.Println("Added comment:", c)
 
 	httpUtils.HandleSuccess(&w, structs.ID{ID: id})
 }

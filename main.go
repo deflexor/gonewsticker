@@ -1,23 +1,33 @@
 package main
 
 import (
+	"io/ioutil"
 	"github.com/deflexor/gonewsticker/httpHandlers"
-	"github.com/deflexor/gonewsticker/structs"
+//	"github.com/deflexor/gonewsticker/httpHandlers/httpUtils"
+//	"github.com/deflexor/gonewsticker/structs"
 	"log"
 	"net/http"
 	"strconv"
 )
 
 const PORT = 8080
+var NEWS_URLS = []string{ "https://hi-tech.mail.ru/rss/all/", "https://news.yandex.ru/science.rss" }
 
 var messageId = 0
 
-func createMessage(message string, sender string) structs.NewsMessage {
-	messageId++
-	return structs.NewsMessage{
-		ID:     messageId,
-		Sender: sender,
-		Text:   message,
+func fetchNews() {
+	
+	for _, url := range NEWS_URLS {
+		res, err := http.Get(url)
+		if err != nil {
+			log.Fatal(err)
+		}
+		rss, err := ioutil.ReadAll(res.Body)
+		res.Body.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+		// fmt.Printf("%s", rss)
 	}
 }
 

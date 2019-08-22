@@ -10,9 +10,9 @@ type PageData struct {
 	title string
 }
 
-var t = template.Must(template.New("index.html").Delims("<%", "%>").ParseFiles("../views/index.html"))
 
 func renderTemplate(w http.ResponseWriter, p *PageData) {
+	var t = template.Must(template.New("index.html").Delims("<%", "%>").ParseFiles("./views/index.html"))
 	err := t.ExecuteTemplate(w, "index.html", p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

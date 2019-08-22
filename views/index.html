@@ -2,7 +2,8 @@
 <html>
 	<title>Новости</title>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf8">
-	<script type="text/javascript" src="<TMPL_VAR DIR_FILES>vue.min.2.5.1.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.0.0/fetch.min.js"></script>
 	<style type="text/css">
 
 	body {
@@ -28,88 +29,10 @@
 			<news-info></news-info>
 		</div>
 
-		<template type="text/x-template" id="date-picker">
-			<span>
-				<input @input="$emit('input', $event.target.value)" :value="date" style="width: 80px" v-date-picker/>
-				<a style="text-decoration:none; cursor:pointer; color:red; font-size: 110%" @click.stop="$emit('clear')">&times;</a>
-				&nbsp;&nbsp;
-			</span>
-		</template>
-
 		<template type="text/x-template" id="news-info">
 			<div>
-				<div class="lmargin2 bmargin2">
-					<div>
-						<a class="adotted" @click.stop="setFilters({addDateFrom: dates.lastMonthStart, addDateTo: dates.lastMonthEnd})">добавлены в прошлом месяце (<span v-once>{{countByFilters({addDateFrom: dates.lastMonthStart, addDateTo: dates.lastMonthEnd})}}</span>)</a>
-						<a class="lmargin2 adotted" @click.stop="setFilters({addDateFrom: dates.thisMonthStart, addDateTo: dates.thisMonthEnd})">добавлены в этом месяце (<span v-once>{{countByFilters({addDateFrom: dates.thisMonthStart, addDateTo: dates.thisMonthEnd})}}</span>)</a>
-						<a class="lmargin2 adotted" style="background: #FCFFA8; padding: 0 6px" @click.stop="setFilters({states: ['в очереди']})" v-once>
-							&nbsp;в очереди ({{countByFilters({states: ['в очереди']})}})
-						</a>
-						<span style="padding-left: 4px; padding-right: 4px">+</span>
-						<a class="adotted" style="background: #D7FFCB; padding: 0 6px" @click.stop="setFilters({states: ['назначен исполнитель / выполняется']})" v-once>
-							&nbsp;выполняются ({{countByFilters({states: ['назначен исполнитель / выполняется']})}})
-						</a>
-						<span style="padding-left: 4px; padding-right: 4px">=</span>
-						<a class="adotted" style="padding-left: 4px; padding-right: 10px" @click.stop="setFilters({states: ['в очереди', 'назначен исполнитель / выполняется']})" v-once>
-							&nbsp;{{countByFilters({states: ['в очереди', 'назначен исполнитель / выполняется']})}}
-						</a>
-					</div>
-					<div>
-						<a class="adotted" @click.stop="setFilters({endDateFrom: dates.lastMonthStart, endDateTo: dates.lastMonthEnd}, true)">завершены в прошлом месяце (<span v-once>{{countByFilters({endDateFrom: dates.lastMonthStart, endDateTo: dates.lastMonthEnd}, true)}}</span>)</a>
-						<a class="lmargin2 adotted" @click.stop="setFilters({endDateFrom: dates.thisMonthStart, endDateTo: dates.thisMonthEnd}, true)">завершены в этом месяце (<span v-once>{{countByFilters({endDateFrom: dates.thisMonthStart, endDateTo: dates.thisMonthEnd}, true)}}</span>)</a>
-
-					</div>
-				</div>
-				<form class="search-form">
-					<div class="search-form-1">
-						<div class="form-name"><input type="checkbox" @change="setAll($event, 'states')" checked> Текущее состояние:</div>
-						<div class="form-fld bmargin2">
-							<label v-for="w in states" :style="{ backgroundColor: stateColors[w] }">
-								<input type="checkbox" v-model="filter.states" :value="w"> {{w}}
-							</label>
-						</div>
-						<div class="form-name">Дата добавления:</div>
-						<div class="form-fld">
-							с <date-picker :date="filter.addDateFrom" v-model="filter.addDateFrom" @clear="filter.addDateFrom=''"></date-picker>
-							по <date-picker :date="filter.addDateTo" v-model="filter.addDateTo" @clear="filter.addDateTo=''"></date-picker>
-						</div>
-						<div class="form-name">Дата завершения:</div>
-						<div class="form-fld">
-							с <date-picker :date="filter.endDateFrom" v-model="filter.endDateFrom" @clear="filter.endDateFrom=''"></date-picker>
-							по <date-picker :date="filter.endDateTo" v-model="filter.endDateTo" @clear="filter.endDateTo=''"></date-picker>
-						</div>
-						<div class="form-name tmargin2"><input type="checkbox" @change="setAll($event, 'weights')" checked> Приоритет: </div>
-						<div class="form-fld">
-							<label v-for="w in weights" :style="{ backgroundColor: colorForWeight(w[0]) }"><input type="checkbox" v-model="filter.weights" :value="w[0]"> {{w[1]}}</label>
-						</div>
-					</div>
-					<div class="search-form-1">
-						<div class="form-name"><input type="checkbox" @change="setAll($event, 'flabels')" checked> Для чего это нужно<sup title="См. всплывающие подсказки">?</sup>: </div>
-						<div class="form-fld">
-							<label v-for="w in flabels" :style="{ backgroundColor: (label_info_by_name[w] || {color:'white'}).color }" :title="label_info_by_name[w] ? label_info_by_name[w].description : ''">
-								<input type="checkbox" v-model="filter.flabels" :value="w"> {{w}}
-							</label>
-						</div>
-					</div>
-					<div class="search-form-1">
-						<div class="form-name"><input type="checkbox" @change="setAll($event, 'blabels')" checked> Направления:</div>
-						<div class="form-fld">
-							<label v-for="w in blabels" :style="{ backgroundColor: 'rgb(66, 139, 202)', color: '#FFFFFF' }" :title="label_info_by_name[w] ? label_info_by_name[w].description : ''">
-								<input type="checkbox" v-model="filter.blabels" :value="w"> {{w}}
-							</label>
-						</div>
-					</div>
-					<div class="search-form-1">
-						<div class="form-name"><input type="checkbox" @change="setAll($event, 'assignees')" checked> Исполнители: </div>
-						<div class="form-fld">
-							<label v-for="w in assignees">
-								<input type="checkbox" v-model="filter.assignees" :value="w"> {{w}}
-							</label>
-						</div>
-					</div>
-				</form>
 				<div class="tot">
-					Показано задач <b>{{fitems.length}}</b> из <b>{{items.length}}</b>
+					Показано новостей: <b>{{items.length}}</b>
 				</div>
 				<table v-if="items.length > 0">
 					<tr>
@@ -117,32 +40,9 @@
 						<th>Дата создания</th>
 						<th>Автор</th>
 						<th>Для чего</th>
-						<th>Направление</th>
-						<th>Название</th>
-						<th>Приоритет</th>
-						<th>Состояние</th>
-						<th>Исполнители</th>
-						<th>Дата закрытия</th>
 					</tr>
-					<tr v-for="b, i in fitems">
-						<td class=""><a :href="b.web_url" target="_blank" rel="noopener noreferrer">#{{b.iid}}</a></td>
-						<td class="nowr">{{(b.created_at || '').replace(/T[0-9:.]+Z$/, '')}}</td>
-						<td class="">{{[b.author].map(function(x) { return x.name }).join(', ')}}</td>
-						<td class="">
-							<label v-for="w,i in b.flabels" :style="{ backgroundColor: (label_info_by_name[w] || {color:'white'}).color, color: calcFgColor(label_info_by_name[w]) }" class="lbl">
-							{{w}}
-							</label>
-						</td>
-						<td class="">
-							<label v-for="w,i in b.blabels" :style="{ backgroundColor: (label_info_by_name[w] || {color:'white'}).color, color: calcFgColor(label_info_by_name[w]) }" class="lbl" v-if="w !== '?'">
-							{{w}}
-							</label>
-						</td>
+					<tr v-for="b, i in items">
 						<td class="al">{{b.title || '-'}}</td>
-						<td class="vc" :style="{ backgroundColor: colorForWeight(b.weight) }">{{readableWeight(b.weight)}}</td>
-						<td class="" :style="{ backgroundColor: stateColors[b.mystate] }">{{b.mystate}}</td>
-						<td class="">{{b.assignees.map(function(x) { return x.name }).join(', ')}}</td>
-						<td class="nowr">{{(b.closed_at || '').replace(/T[0-9:.]+Z$/, '')}}</td>
 					</tr>
 				</table>
 			</div>
@@ -150,183 +50,23 @@
 
 		<script type="text/javascript">
 
-		// var S = <%.%>;
-
-		Vue.component('date-picker', {
-			template: '#date-picker',
-			props: {
-				date: {
-					default: '',
-					type: String,
-				}
-			},
-			directives: {
-				datePicker: {
-					bind(el, binding, vnode) {
-						$(el).datepicker({
-							dateFormat:'yy-mm-dd',
-							numberOfMonths: 3,
-							showCurrentAtPos: 1,
-							onSelect: function(val) {
-								vnode.context.$emit('input', val);
-							},
-							closeText: 'Закрыть'
-						});
-					}
-				}
-			}
-		});
-
 		Vue.component('news-info', {
 			template: '#news-info',
-			props: {
-				items: {
-					type: Array,
-					required: true
-				}
-			},
 			data() {
-				var states = ['в очереди',
-							  'назначен исполнитель / выполняется',
-							  'завершена',
-							  'отклонена'
-							  ];
-				var stateColors = [
-					'#FCFFA8',
-					'#D7FFCB',
-					'#5FC540',
-					'#C1C1C1',
-				];
 				return {
-					label_info_by_name: {},
-					flabels: [],
-					blabels: [],
-					states: states,
-					stateColors: _.object(states, stateColors),
-					assignees: ['---'],
-					weights: S.weights,
-					dates: S.dates,
-					filter: {
-						flabels: [],
-						blabels: [],
-						states: [],
-						assignees: [],
-						weights: [],
-						addDateFrom: '',
-						addDateTo: '',
-						endDateFrom: '',
-						endDateTo: ''
-					}
+					items: []
 				}
 			},
-			created() {
-				for(var i = 0; i < this.items.length; i++) {
-					var it = this.items[i];
-					if (_.contains(it.labels, '?')) {
-						it.mystate = 'отклонена';
-					} else if (it.state === 'closed') {
-						it.mystate = 'завершена';
-					} else if (it.assignees.length > 0) {
-						it.mystate = 'назначен исполнитель / выполняется';
-					} else {
-						it.mystate = 'в очереди';
-					}
-
-					for(var k = 0; k < it.assignees.length; k++) {
-						this.assignees.push(it.assignees[k].name);
-					}
-				}
-				this.flabels = S.forlabels;
-				this.blabels = S.labels.filter(function (x) { return !x.forwhat && x.name !== '?' }).map(function (x) { return x.name });
-				for(var i = 0; i < S.labels.length; i++) {
-					this.label_info_by_name[S.labels[i].name] = S.labels[i];
-				}
-				this.assignees = _.uniq(this.assignees)
-				this.assignees.sort(function (a, b) { return a.localeCompare(b) });
-				this.setDefaultFilters();
+			mounted() {
+				this.fetchNews()
 			},
 			computed: {
-				fitems () {
-					return this.filterItems(this.items, this.filter);
-				}
 			},
 			methods: {
-				setDefaultFilters () {
-					_.extend(this.filter,{addDateFrom: '', addDateTo: '', endDateFrom: '', endDateTo: ''});
-					this.filter.flabels = this.flabels.filter(function (x) { return x !== "---" });
-					this.filter.blabels = this.blabels;
-					this.filter.states = this.states.slice(0, this.states.length-2);
-					this.filter.weights = this.weights.map(function (x) { return x[0] });
-					this.filter.assignees = this.assignees;
-				},
-				filterItems (items, f) {
-					var res = [];
-					for(var i = 0; i < items.length; i++) {
-						var it = items[i];
-						var ok = true;
-						var assignees = it.assignees.map(function(x) { return x.name });
-						if(assignees.length === 0) assignees = ['---'];
-						if(it.labels.length > 0) {
-							ok = ok && _.intersection(it.flabels, f.flabels).length > 0;
-							ok = ok && _.intersection(it.blabels, f.blabels).length > 0;
-						}
-						ok = ok && _.intersection(assignees, f.assignees).length > 0;
-						ok = ok && _.contains(f.states, it.mystate);
-						ok = ok && _.contains(f.weights, it.weight);
-						if (f.addDateFrom) ok = ok && new Date(it.created_at) >= new Date(f.addDateFrom + 'T00:00:00.000Z');
-						if (f.addDateTo) ok = ok && new Date(it.created_at) <= new Date(f.addDateTo + 'T23:59:59.999Z');
-						if (it.closed_at) {
-							if (f.endDateFrom) ok = ok && new Date(it.closed_at) >= new Date(f.endDateFrom + 'T00:00:00.000Z');
-							if (f.endDateTo) ok = ok && new Date(it.closed_at) <= new Date(f.endDateTo + 'T23:59:59.999Z');
-						}
-						if (ok) res.push(it);
-					}
-					return res;
-				},
-				setAll: function (e, k) {
-					if(e.target.checked) {
-						for(var i = 0; i < this[k].length; i++) {
-							if(k === 'weights') {
-								this.filter[k] = this[k].map(function (x) { return x[0] });
-							} else {
-								this.filter[k] = this[k];
-							}
-						}
-					} else {
-						this.filter[k] = [];
-					}
-				},
-				calcFgColor: function (obj) {
-					if(!obj || !('color' in obj)) return '#000000';
-					var bgColor = obj.color;
-					var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
-					var r = parseInt(color.substring(0, 2), 16);
-					var g = parseInt(color.substring(2, 4), 16);
-					var b = parseInt(color.substring(4, 6), 16);
-					return (((r * 0.299) + (g * 0.587) + (b * 0.114)) > 186) ? '#000000' : '#FFFFFF';
-				},
-				readableWeight (w) {
-					if(w === 10) return '!';
-					if(w === 20) return '!!!';
-					return 'норм.';
-				},
-				colorForWeight (w) {
-					if(w === 10) return '#FFD8D9';
-					if(w === 20) return '#FFB0B2';
-					return '#D7FFCB';
-				},
-				setFilters(f, end) {
-					this.setDefaultFilters();
-					this.filter.states = this.getFilterStates(end);
-					_.extend(this.filter, f)
-				},
-				countByFilters(f, end) {
-					var states = this.getFilterStates(end);
-					var res = this.filterItems(this.items, _.extend({}, this.filter, { states: states }, f));
-					return res.length;
-				},
-				getFilterStates(end) {
-					return end ? this.states.slice(this.states.length-2, this.states.length-1) : this.states.slice(0, this.states.length-1)
+				fetchNews () {
+					fetch("/news").then(function (r) { return r.json() }).then(function (r) {
+						console.log(r)
+					})
 				}
 			}
 		});
