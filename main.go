@@ -43,6 +43,7 @@ func FetchNewsSlice (url string, fmt string, resultC chan []structs.NewsMessage,
 	  news = append(news, structs.NewsMessage{
 		  	Sender: url,
 			GUID: item.GUID,
+			URL: item.Link,
 			Title: item.Title,
 			Text:  item.FullText,
 			Created: created })
@@ -51,6 +52,7 @@ func FetchNewsSlice (url string, fmt string, resultC chan []structs.NewsMessage,
 }
 
 func FetchNews(fetcher RSSFetcher) {
+	log.Print("Fetching news..")
 	var news []structs.NewsMessage
 	resultC := make(chan []structs.NewsMessage)
 	for i, url := range NEWS_URLS {
@@ -63,12 +65,20 @@ func FetchNews(fetcher RSSFetcher) {
 	sort.Slice(news, func (i, j int) bool { return news[i].Created.After(news[j].Created) })
 	log.Printf("got news: %d", len(news))
 	storage.AddMany(news)
+	log.Println("Done.")
+}
+
+func NewsFetcher() {
+	for {
+		FetchNews(rssFetchGoRSS{})
+		time.Sleep(time.Hour * 2)
+	}
 }
 
 func main() {
-	log.Println("Fetching news")
-	FetchNews(rssFetchGoRSS{})
-	log.Println("Done\nstarted HTTP Server.")
+	go NewsFetcher()
+
+	log.Println("started HTTP Server.")
 
 	http.HandleFunc("/", httpHandlers.HandleRequest)
 

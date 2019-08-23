@@ -3,7 +3,7 @@
 	<title>Новости</title>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf8">
 	<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.0.0/fetch.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0.0/dist/fetch.umd.min.js"></script>
 	<style type="text/css">
 
 	body {
@@ -22,6 +22,30 @@
 	.red {color: red}
 	.rm {color: red; text-decoration: none }
 
+	.al {
+		vertical-align: top;
+	}
+
+	.nowr {
+		white-space: nowrap;
+	}
+
+	.b {
+		font-weight: bold;
+	}
+
+	.hr {
+		border-bottom: 2px ridge gray;
+	}
+
+	.r {
+		text-align: right;
+	}
+
+	.inp {
+		width: 40%;
+	}
+
 	</style>
 
 	<body>
@@ -35,15 +59,22 @@
 					Показано новостей: <b>{{items.length}}</b>
 				</div>
 				<table v-if="items.length > 0">
-					<tr>
-						<th>id</th>
-						<th>Дата создания</th>
-						<th>Автор</th>
-						<th>Для чего</th>
-					</tr>
-					<tr v-for="b, i in items">
-						<td class="al">{{b.title || '-'}}</td>
-					</tr>
+					<tbody  v-for="b, i in items">
+						<tr>
+							<td class="al nowr"><a :href="b.URL" target="_blank" rel="noopener nofollow">{{b.Created}}</td>
+							<td class="al b" v-html="b.Title"></td>
+						</tr>
+						<tr>
+							<td class="al" colspan="2">
+								комментариев нет
+								<div class="nowr">
+									<input type="text" class="inp">
+									<button type="button">Комментировать</button>
+								</div>
+							</td>
+						</tr>
+						<tr><td class="hr" colspan="2"></td></tr>
+					</tbody>
 				</table>
 			</div>
 		</template>
@@ -64,8 +95,13 @@
 			},
 			methods: {
 				fetchNews () {
+					var self = this;
 					fetch("/news").then(function (r) { return r.json() }).then(function (r) {
-						console.log(r)
+						for (let i = 0; i < r.length; i++) {
+							const e = r[i];
+							e.Created = new Date(e.Created).toLocaleString("ru", {})
+						}
+						self.items = r;
 					})
 				}
 			}
