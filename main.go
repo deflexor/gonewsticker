@@ -1,13 +1,16 @@
 package main
 
 import (
-	"io/ioutil"
+	"github.com/deflexor/gonewsticker/storage"
+	"sort"
+//	"io/ioutil"
 	"github.com/deflexor/gonewsticker/httpHandlers"
 //	"github.com/deflexor/gonewsticker/httpHandlers/httpUtils"
-//	"github.com/deflexor/gonewsticker/structs"
+	"github.com/deflexor/gonewsticker/structs"
 	"log"
 	"net/http"
 	"strconv"
+	"github.com/ungerik/go-rss"
 )
 
 const PORT = 8080
@@ -16,19 +19,31 @@ var NEWS_URLS = []string{ "https://hi-tech.mail.ru/rss/all/", "https://news.yand
 var messageId = 0
 
 func fetchNews() {
-	
+	var news []structs.NewsMessage
 	for _, url := range NEWS_URLS {
-		res, err := http.Get(url)
+		channel, err := rss.Read(url)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
-		rss, err := ioutil.ReadAll(res.Body)
-		res.Body.Close()
-		if err != nil {
-			log.Fatal(err)
+	
+		log.Println(channel.Title)
+	
+		for _, item := range channel.Item {
+		  created, err := item.PubDate.Parse()
+		  if err != nil {
+			  log.Printf("%v", err)
+			  continue
+		  }
+		  news = append(news, structs.NewsMessage{
+				GUID: item.GUID,
+				Title: item.Title,
+				Text:  item.FullText,
+				Created: created })
 		}
-		// fmt.Printf("%s", rss)
+		// log.Printf("%s", rss)
 	}
+	sort.Slice(news, func (i, j int) bool { return news[i].Created.After(news[j].Created) })
+	storage.AddMany(news)
 }
 
 func main() {

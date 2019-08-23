@@ -6,7 +6,9 @@ import (
 
 type NewsMessage struct {
 	ID     int
+	GUID   string
 	Sender string
+	Title  string
 	Text   string
 	Created time.Time
 	Comments []Comment

@@ -22,17 +22,40 @@ func Add(message structs.NewsMessage) int {
 	return message.ID
 }
 
-func AddComment(id int, c structs.Comment) bool {
+func AddMany(messages []structs.NewsMessage) int {
+	mux.Lock()
+	defer mux.Unlock()
+	if len(store) == 0 {
+		store = messages
+	} else {
+		cutoffTime := store[0].Created
+		for _, m := range messages {
+			if m.Created.Before(cutoffTime)  {
+				break
+			} else {
+				store = append(store, m)
+			}
+		}
+		// store = append(store, messages...)
+	}
+	return 0
+}
+
+func AddComment(guid string, c structs.Comment) bool {
 	mux.Lock()
 	defer mux.Unlock()
 
 	for _, message := range store {
-		if message.ID == id {
+		if message.GUID == guid {
 			message.Comments = append(message.Comments, c)
 			return true
 		}
 	}
 	return false
+}
+
+func Clear() {
+	store = nil
 }
 
 func Remove(id int) bool {
