@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"time"
 	"sync"
 	"github.com/deflexor/gonewsticker/structs"
 )
@@ -28,12 +29,12 @@ func AddMany(messages []structs.NewsMessage) int {
 	if len(store) == 0 {
 		store = messages
 	} else {
-		cutoffTime := store[0].Created
+		cutoffTime := store[0].Created.Add(time.Second)
 		for _, m := range messages {
 			if m.Created.Before(cutoffTime)  {
 				break
 			} else {
-				store = append(store, m)
+				store = append([]structs.NewsMessage{m}, store...)
 			}
 		}
 		// store = append(store, messages...)

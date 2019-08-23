@@ -34,14 +34,14 @@ func FetchNewsSlice (url string, fmt string, resultC chan []structs.NewsMessage,
 	if err != nil {
 		log.Println(err)
 	}
-	rssChannel.Item = rssChannel.Item[:2]
-	log.Printf("%#v\n", rssChannel)
+	// rssChannel.Item = rssChannel.Item[:2]
 	for _, item := range rssChannel.Item {
 	  created, err := item.PubDate.ParseWithFormat(fmt)
 	  if err != nil {
 		  continue
 	  }
 	  news = append(news, structs.NewsMessage{
+		  	Sender: url,
 			GUID: item.GUID,
 			Title: item.Title,
 			Text:  item.FullText,
