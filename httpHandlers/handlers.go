@@ -8,8 +8,8 @@ import (
 
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	log.Println("Incoming Request:", r.Method)
-	log.Println("Incoming URI:", r.RequestURI)
-	switch r.RequestURI {
+	log.Println("Incoming URI:", r.URL.Path)
+	switch r.URL.Path {
 	case "/":
 		Index(w, r)
 		break

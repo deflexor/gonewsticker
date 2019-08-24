@@ -48,6 +48,7 @@ func AddComment(guid string, c structs.Comment) bool {
 
 	for _, message := range store {
 		if message.GUID == guid {
+			c.Added = time.Now()
 			message.Comments = append(message.Comments, c)
 			return true
 		}

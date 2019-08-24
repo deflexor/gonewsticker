@@ -68,8 +68,8 @@
 							<td class="al" colspan="2">
 								комментариев нет
 								<div class="nowr">
-									<input type="text" class="inp">
-									<button type="button">Комментировать</button>
+									<input type="text" class="inp" v-model="b.NewComment">
+									<button type="button" @click="addComment(b)">Комментировать</button>
 								</div>
 							</td>
 						</tr>
@@ -99,10 +99,28 @@
 					fetch("/news").then(function (r) { return r.json() }).then(function (r) {
 						for (let i = 0; i < r.length; i++) {
 							const e = r[i];
-							e.Created = new Date(e.Created).toLocaleString("ru", {})
+							e.Created = new Date(e.Created).toLocaleString("ru", {});
+							e.NewComment = '';
 						}
 						self.items = r;
-					})
+					});
+				},
+				addComment (newsItem) {
+					var comment = {
+						Author: '>?',
+						Text: newsItem.NewComment
+					};
+					var opts = {
+						method: 'POST',
+						headers: {
+    						'Content-Type': 'application/json;charset=utf-8'
+  						},
+  						body: JSON.stringify(comment)
+					};
+					fetch("/comment?guid=" + newsItem.GUID, opts).then(function (r) { return r.json() }).then(function (r) {
+						newsItem.Comments.push(r)
+					});
+
 				}
 			}
 		});

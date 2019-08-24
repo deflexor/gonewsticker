@@ -33,6 +33,8 @@ func FetchNewsSlice (url string, fmt string, resultC chan []structs.NewsMessage,
 	rssChannel, err := fetcher.Get(url)
 	if err != nil {
 		log.Println(err)
+		resultC <- news
+		return
 	}
 	// rssChannel.Item = rssChannel.Item[:2]
 	for _, item := range rssChannel.Item {

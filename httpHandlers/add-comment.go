@@ -1,6 +1,8 @@
 package httpHandlers
 
 import (
+	"strconv"
+	"github.com/deflexor/gonewsticker/storage"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -14,9 +16,14 @@ import (
 func AddComment(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	byteData, err := ioutil.ReadAll(r.Body)
-
 	if err != nil {
 		httpUtils.HandleError(&w, 500, "Internal Server Error", "Error reading data from body", err)
+		return
+	}
+
+	guid, ok := r.URL.Query()["guid"]
+	if !ok && len(guid[0]) < 1 {
+		httpUtils.HandleError(&w, 400, "Bad request", "No guid in query string", nil)
 		return
 	}
 
@@ -34,10 +41,9 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// id := storage.Add(message)
-	id := 1
+	ok = storage.AddComment(guid[0], c)
 
 	log.Println("Added comment:", c)
 
-	httpUtils.HandleSuccess(&w, structs.ID{ID: id})
+	httpUtils.HandleSuccess(&w, c)
 }
