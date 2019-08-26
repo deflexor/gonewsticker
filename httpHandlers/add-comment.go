@@ -1,11 +1,12 @@
 package httpHandlers
 
 import (
-	"strconv"
-	"github.com/deflexor/gonewsticker/storage"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"time"
+
+	"github.com/deflexor/gonewsticker/storage"
 
 	"log"
 
@@ -17,13 +18,13 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	byteData, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		httpUtils.HandleError(&w, 500, "Internal Server Error", "Error reading data from body", err)
+		httpUtils.HandleError(&w, 500, "Internal Server Error", "", err)
 		return
 	}
 
 	guid, ok := r.URL.Query()["guid"]
 	if !ok && len(guid[0]) < 1 {
-		httpUtils.HandleError(&w, 400, "Bad request", "No guid in query string", nil)
+		httpUtils.HandleError(&w, 400, "Ошибка при добавлении комментария!", "", nil)
 		return
 	}
 
@@ -37,10 +38,11 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if c.Text == "" || c.Author == "" {
-		httpUtils.HandleError(&w, 400, "Bad Request", "Unmarshalled JSON didn't have required fields", nil)
+		httpUtils.HandleError(&w, 400, "Не заполнены нужные поля!", "", nil)
 		return
 	}
 
+	c.Added = time.Now()
 	ok = storage.AddComment(guid[0], c)
 
 	log.Println("Added comment:", c)

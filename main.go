@@ -48,7 +48,8 @@ func FetchNewsSlice (url string, fmt string, resultC chan []structs.NewsMessage,
 			URL: item.Link,
 			Title: item.Title,
 			Text:  item.FullText,
-			Created: created })
+			Created: created,
+			Comments: []structs.Comment{} })
 	}
 	resultC <- news
 }

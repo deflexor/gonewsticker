@@ -13,7 +13,12 @@ func HandleError(w *http.ResponseWriter, code int, responseText string, logMessa
 		errorMessage = err.Error()
 	}
 
-	log.Println(logMessage, errorMessage)
+	if logMessage != "" {
+		log.Println(logMessage)
+	}
+	if errorMessage != "" {
+		log.Println(errorMessage)
+	}
 	writer.WriteHeader(code)
 	writer.Write([]byte(responseText))
 }

@@ -2,7 +2,7 @@ package httpHandlers
 
 import (
 	"github.com/deflexor/gonewsticker/storage"
-	"github.com/deflexor/gnt1/httpHandlers/httpUtils"
+	"github.com/deflexor/gonewsticker/httpHandlers/httpUtils"
 	"net/http"
 
 //	"github.com/deflexor/gonewsticker/httpHandlers/httpUtils"

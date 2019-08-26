@@ -46,10 +46,10 @@ func AddComment(guid string, c structs.Comment) bool {
 	mux.Lock()
 	defer mux.Unlock()
 
-	for _, message := range store {
-		if message.GUID == guid {
+	for i, _ := range store {
+		if store[i].GUID == guid {
 			c.Added = time.Now()
-			message.Comments = append(message.Comments, c)
+			store[i].Comments = append(store[i].Comments, c)
 			return true
 		}
 	}
