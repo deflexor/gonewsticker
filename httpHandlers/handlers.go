@@ -23,6 +23,12 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	case "/news":
 		List(w, r)
 		break
+	case "/login":
+		SteamLogin(w, r)
+		break
+	case "/login_info":
+		LoginInfo(w, r)
+		break
 	default:
 		httpUtils.HandleError(&w, 400, "Bad request", "Bad request", nil)
 		break

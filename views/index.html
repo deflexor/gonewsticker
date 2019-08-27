@@ -55,6 +55,9 @@
 
 		<template type="text/x-template" id="news-info">
 			<div>
+				<div class="red" v-if="loginErr">
+					<b>{{loginErr}}</b>
+				</div>
 				<div class="tot">
 					Показано новостей: <b>{{items.length}}</b>
 				</div>
@@ -77,6 +80,9 @@
 									<button type="submit">Комментировать</button>
 									<div v-if="b.ErrComment" class="red">{{b.ErrComment}}</div>
 								</form>
+								<div>
+									<button type="button" @click="login">Войти через Steam</button>
+								</div>
 							</td>
 						</tr>
 						<tr><td class="hr" colspan="2"></td></tr>
@@ -91,7 +97,9 @@
 			template: '#news-info',
 			data() {
 				return {
-					items: []
+					loginErr: '',
+					items: [],
+					loginData: {}
 				}
 			},
 			mounted() {
@@ -138,6 +146,28 @@
 							newsItem.NewComment = '';
 						});
 					});
+				},
+				login () {
+					var self = this;
+					var win = window.open("/login", "_blank", "width=900,height=720,status=no,toolbar=no,menubar=no,location=no,resizable=yes,scrollbars=yes")
+					var timer = setInterval(function () {
+						if (win.closed) {
+							clearInterval(timer);
+							fetch("/login_info").then(function (r) {
+								if (r.status !== 200) {
+									r.text().then(function (r) {
+										console.log(r);
+										self.loginErr = 'Ошибка авторизации.';
+									});
+									return;
+								}
+								r.json().then(function (r) {
+									console.log(r)
+									self.loginData = r;
+								});
+							});
+						}
+        			}, 500);
 				}
 			}
 		});
@@ -146,6 +176,7 @@
 			el: '#app'
 		});
 
+		var S = <%.User%>;
 		</script>
 
 	</body>
