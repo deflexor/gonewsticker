@@ -84,7 +84,7 @@
 										</tr>
 									</table>
 								</div>
-								<div v-if="!loginData.steamid">
+								<div v-if="!(loginData &&loginData.steamid)">
 									<button type="button" @click="login">Войти через Steam</button>
 								</div>
 								<form class="nowr" @submit.prevent="addComment(b)" v-else>
@@ -108,7 +108,7 @@
 				return {
 					loginErr: '',
 					items: [],
-					loginData: S.LoggedUser
+					loginData: LoggedUser
 				}
 			},
 			mounted() {
