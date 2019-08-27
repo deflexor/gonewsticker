@@ -5,13 +5,12 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
-
-	"github.com/deflexor/gonewsticker/storage"
-
 	"log"
 
+	"github.com/deflexor/gonewsticker/storage"
 	"github.com/deflexor/gonewsticker/httpHandlers/httpUtils"
 	"github.com/deflexor/gonewsticker/structs"
+	"github.com/deflexor/gonewsticker/session"
 )
 
 func AddComment(w http.ResponseWriter, r *http.Request) {
@@ -19,6 +18,17 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	byteData, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		httpUtils.HandleError(&w, 500, "Internal Server Error", "", err)
+		return
+	}
+	ses, err := r.Cookie("SESSIONV2")
+	if err != nil {
+		httpUtils.HandleError(&w, 401, "Not authorized", "", err)
+		return
+	}
+	id := ses.Value
+	userData, err1 := session.GetUser(id)
+	if err1 != nil {
+		httpUtils.HandleError(&w, 401, "Not authorized", "", err)
 		return
 	}
 
@@ -29,6 +39,9 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var c structs.Comment
+
+	c.Author = userData.PersonaName
+	c.Avatar = userData.AvatarMedium
 
 	err = json.Unmarshal(byteData, &c)
 

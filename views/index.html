@@ -71,18 +71,27 @@
 							<td class="al" colspan="2">
 								<div v-if="b.Comments.length == 0">комментариев нет</div>
 								<div v-for="c, i in b.Comments">
-									<i>{{new Date(c.Added).toLocaleString("ru")}}</i>
-									<span>{{c.Text}}</span>
-									<span class="gray">{{c.Author}}</span>
+									<table>
+										<tr>
+											<td>
+												<img :src="c.Avatar">
+												<br>
+												<span class="gray">{{c.Author}}</span>
+												<br>
+												<i>{{new Date(c.Added).toLocaleString("ru")}}</i>
+											</td>
+											<td><span>{{c.Text}}</span></td>
+										</tr>
+									</table>
 								</div>
-								<form class="nowr" @submit.prevent="addComment(b)">
+								<div v-if="!loginData.steamid">
+									<button type="button" @click="login">Войти через Steam</button>
+								</div>
+								<form class="nowr" @submit.prevent="addComment(b)" v-else>
 									<input type="text" class="inp" v-model="b.NewComment">
 									<button type="submit">Комментировать</button>
 									<div v-if="b.ErrComment" class="red">{{b.ErrComment}}</div>
 								</form>
-								<div>
-									<button type="button" @click="login">Войти через Steam</button>
-								</div>
 							</td>
 						</tr>
 						<tr><td class="hr" colspan="2"></td></tr>
@@ -99,7 +108,7 @@
 				return {
 					loginErr: '',
 					items: [],
-					loginData: {}
+					loginData: S.LoggedUser
 				}
 			},
 			mounted() {
@@ -123,7 +132,6 @@
 				addComment (newsItem) {
 					newsItem.ErrComment = '';
 					var comment = {
-						Author: '>?',
 						Text: newsItem.NewComment
 					};
 					var opts = {
@@ -156,13 +164,11 @@
 							fetch("/login_info").then(function (r) {
 								if (r.status !== 200) {
 									r.text().then(function (r) {
-										console.log(r);
 										self.loginErr = 'Ошибка авторизации.';
 									});
 									return;
 								}
 								r.json().then(function (r) {
-									console.log(r)
 									self.loginData = r;
 								});
 							});
@@ -176,7 +182,7 @@
 			el: '#app'
 		});
 
-		var S = <%.User%>;
+		var LoggedUser = <%.User%>;
 		</script>
 
 	</body>

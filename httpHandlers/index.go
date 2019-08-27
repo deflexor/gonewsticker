@@ -1,6 +1,7 @@
 package httpHandlers
 
 import (
+	"log"
 	"net/http"
 	"text/template"
 	"encoding/json"
@@ -29,9 +30,13 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		userData, err1 := session.GetUser(id)
 		if err1 == nil {
 			user1, err2 := json.Marshal(userData)
-			if err2 != nil {
+			if err2 == nil {
 				user = string(user1)
+			} else {
+				log.Printf("json.Marshal(userData) err: %s\n", err2)
 			}
+		} else {
+			log.Printf("session.GetUser err: %s\n", err1)
 		}
 	}
 	pd := PageData{"Новости", user}

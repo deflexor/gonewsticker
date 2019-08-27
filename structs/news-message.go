@@ -17,6 +17,7 @@ type NewsMessage struct {
 
 type Comment struct {
 	Author string
+	Avatar string
 	Text string
 	Added time.Time
 }
