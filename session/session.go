@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/deflexor/gonewsticker/structs"
+	"github.com/rs/xid"
 )
 
 type Session struct {
@@ -32,10 +33,12 @@ func GetUser(id string) (structs.PlayerSummary, error) {
 	return user.S, nil
 }
 
-func Login(data structs.PlayerSummary) {
+func Login(data structs.PlayerSummary) string {
 	mux.Lock()
 	defer mux.Unlock()
 
 	now := time.Now()
-	store[data.SteamId] = Session{now, data}
+	guid := xid.New().String()
+	store[guid] = Session{now, data}
+	return guid
 }

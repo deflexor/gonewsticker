@@ -55,8 +55,8 @@ func SteamLogin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// log.Printf("got steam user: %v", user)
-		session.Login(*user)
-		http.SetCookie(w, &http.Cookie{Name: "SESSIONV2", Value: user.SteamId, Path: "/", HttpOnly: true})
+		guid := session.Login(*user)
+		http.SetCookie(w, &http.Cookie{Name: "SESSIONV2", Value: guid, Path: "/", HttpOnly: true})
 		w.Write([]byte("<html><body><script>window.close();</script></body></html>"))
 	}
 }

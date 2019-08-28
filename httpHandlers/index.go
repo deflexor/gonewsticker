@@ -23,15 +23,15 @@ func renderTemplate(w http.ResponseWriter, p *PageData) {
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	// http.Redirect(w, r, "/edit/"+title, http.StatusFound)
+	pd := PageData{"Новости", "{}"}
 	ses, err := r.Cookie("SESSIONV2")
-	user := "{}"
 	if err == nil {
 		id := ses.Value
 		userData, err1 := session.GetUser(id)
 		if err1 == nil {
 			user1, err2 := json.Marshal(userData)
 			if err2 == nil {
-				user = string(user1)
+				pd.User = string(user1)
 			} else {
 				log.Printf("json.Marshal(userData) err: %s\n", err2)
 			}
@@ -39,6 +39,5 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			log.Printf("session.GetUser err: %s\n", err1)
 		}
 	}
-	pd := PageData{"Новости", user}
 	renderTemplate(w, &pd)
 }

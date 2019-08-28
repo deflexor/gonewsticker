@@ -101,6 +101,7 @@
 		</template>
 
 		<script type="text/javascript">
+		var LoggedUser = <%.User%>;
 
 		Vue.component('news-info', {
 			template: '#news-info',
@@ -108,7 +109,7 @@
 				return {
 					loginErr: '',
 					items: [],
-					loginData: LoggedUser
+					loginData: window.LoggedUser
 				}
 			},
 			mounted() {
@@ -182,7 +183,6 @@
 			el: '#app'
 		});
 
-		var LoggedUser = <%.User%>;
 		</script>
 
 	</body>

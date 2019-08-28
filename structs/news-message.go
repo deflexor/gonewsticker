@@ -5,7 +5,6 @@ import (
 )
 
 type NewsMessage struct {
-	ID     int
 	GUID   string
 	URL    string
 	Sender string

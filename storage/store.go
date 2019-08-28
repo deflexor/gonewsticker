@@ -8,19 +8,15 @@ import (
 
 var mux sync.Mutex
 var store structs.NewsList
-var currentMaxId = 1
 
 func Get() structs.NewsList {
 	return store
 }
 
-func Add(message structs.NewsMessage) int {
+func Add(message structs.NewsMessage) {
 	mux.Lock()
 	defer mux.Unlock()
-	message.ID = currentMaxId
-	currentMaxId++
 	store = append(store, message)
-	return message.ID
 }
 
 func AddMany(messages []structs.NewsMessage) int {
@@ -58,23 +54,4 @@ func AddComment(guid string, c structs.Comment) bool {
 
 func Clear() {
 	store = nil
-}
-
-func Remove(id int) bool {
-	mux.Lock()
-	defer mux.Unlock()
-	index := -1
-
-	for i, message := range store {
-		if message.ID == id {
-			index = i
-		}
-	}
-
-	if index != -1 {
-		store = append(store[:index], store[index+1:]...)
-	}
-
-	// Returns true if item was found & removed
-	return index != -1
 }
